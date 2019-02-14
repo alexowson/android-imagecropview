@@ -2,6 +2,7 @@
 <resources>
     
     <declare-styleable name="ImageCropView">
+        <attr name="transparentLayerColor" format="color" />
         <attr name="gridInnerStroke" format="dimension" />
         <attr name="gridInnerColor" format="color" />
         <attr name="setInnerGridMode" format="integer">

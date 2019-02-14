@@ -151,7 +151,9 @@ public class ImageCropView extends ImageView {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ImageCropView);
 
         mTransparentLayerPaint = new Paint();
-        mTransparentLayerPaint.setColor(Color.parseColor(DEFAULT_BACKGROUND_COLOR_ID));
+        int transparentLayerColor = a.getColor(R.styleable.ImageCropView_transparentLayerColor,
+                Color.parseColor(DEFAULT_BACKGROUND_COLOR_ID));
+        mTransparentLayerPaint.setColor(transparentLayerColor);
 
         setScaleType(ImageView.ScaleType.MATRIX);
 
