@@ -1027,6 +1027,10 @@ public class ImageCropView extends ImageView {
         return mDoubleTapEnabled;
     }
 
+    public void setTransparentLayerColor(int color) {
+        mTransparentLayerPaint.setColor(color);
+    }
+
     @Override
     @SuppressLint("ClickableViewAccessibility")
     public boolean onTouchEvent(MotionEvent event) {
