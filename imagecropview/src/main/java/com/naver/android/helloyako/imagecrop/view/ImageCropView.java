@@ -133,6 +133,8 @@ public class ImageCropView extends ImageView {
     private int savedAspectRatioHeight;
     private float[] suppMatrixValues = new float[9];
 
+    private boolean disabledAdjustCropAreaImage;
+
     public ImageCropView(Context context) {
         this(context, null);
     }
@@ -175,6 +177,8 @@ public class ImageCropView extends ImageView {
 
         gridLeftRightMargin = a.getDimension(R.styleable.ImageCropView_gridLeftRightMargin, 0);
         gridTopBottomMargin = a.getDimension(R.styleable.ImageCropView_gridTopBottomMargin, 0);
+
+        disabledAdjustCropAreaImage = a.getBoolean(R.styleable.ImageCropView_disabledAdjustCropAreaImage, false);
 
         int rowLineCount = (GRID_ROW_COUNT - 1) * 4;
         int columnLineCount = (GRID_COLUMN_COUNT - 1) * 4;
@@ -811,7 +815,8 @@ public class ImageCropView extends ImageView {
     protected void panBy(double dx, double dy) {
         mScrollRect.set((float) dx, (float) dy, 0, 0);
         postTranslate(mScrollRect.left, mScrollRect.top);
-        adjustCropAreaImage();
+        if(!disabledAdjustCropAreaImage)
+            adjustCropAreaImage();
     }
 
     private void adjustCropAreaImage() {
@@ -1029,6 +1034,10 @@ public class ImageCropView extends ImageView {
 
     public void setTransparentLayerColor(int color) {
         mTransparentLayerPaint.setColor(color);
+    }
+
+    public void setDisabledAdjustCropAreaImage(boolean disabledAdjustCropAreaImage) {
+        this.disabledAdjustCropAreaImage = disabledAdjustCropAreaImage;
     }
 
     @Override

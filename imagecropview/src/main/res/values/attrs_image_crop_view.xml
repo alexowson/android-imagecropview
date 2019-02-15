@@ -18,6 +18,7 @@
         </attr>
         <attr name="gridLeftRightMargin" format="dimension" />
         <attr name="gridTopBottomMargin" format="dimension" />
+        <attr name="disabledAdjustCropAreaImage" format="boolean" />
     </declare-styleable>
     
 </resources>
