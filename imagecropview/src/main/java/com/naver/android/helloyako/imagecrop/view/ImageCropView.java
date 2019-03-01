@@ -35,7 +35,8 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
+//import android.view.ScaleGestureDetector;
+import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.ImageView;
 
@@ -124,6 +125,7 @@ public class ImageCropView extends ImageView {
     protected boolean mDoubleTapEnabled = false;
     protected boolean mScaleEnabled = true;
     protected boolean mScrollEnabled = true;
+    protected boolean mRotateEnabled = false;
     private ImageCropView.OnImageViewTouchDoubleTapListener mDoubleTapListener;
     private ImageCropView.OnImageViewTouchSingleTapListener mSingleTapListener;
 
@@ -190,7 +192,7 @@ public class ImageCropView extends ImageView {
         mGestureListener = new GestureListener();
         mScaleListener = new ScaleListener();
 
-        mScaleDetector = new ScaleGestureDetector(getContext(), mScaleListener);
+        mScaleDetector = new ScaleGestureDetector(mScaleListener);
         mGestureDetector = new GestureDetector(getContext(), mGestureListener, null, true);
 
         mDoubleTapDirection = 1;
@@ -763,6 +765,14 @@ public class ImageCropView extends ImageView {
         setImageMatrix(getImageViewMatrix());
     }
 
+    protected void postRotate(float rotate, float centerX, float centerY) {
+        if (LOG_ENABLED) {
+            Log.i(LOG_TAG, "postRotate: " + rotate + ", center: " + centerX + "x" + centerY);
+        }
+        mSuppMatrix.postRotate(rotate, centerX, centerY);
+        setImageMatrix(getImageViewMatrix());
+    }
+
     protected PointF getCenter() {
         return mCenter;
     }
@@ -1028,6 +1038,10 @@ public class ImageCropView extends ImageView {
         mScrollEnabled = value;
     }
 
+    public void setRotateEnabled(boolean value) {
+        mRotateEnabled = value;
+    }
+
     public boolean getDoubleTapEnabled() {
         return mDoubleTapEnabled;
     }
@@ -1044,7 +1058,7 @@ public class ImageCropView extends ImageView {
     @SuppressLint("ClickableViewAccessibility")
     public boolean onTouchEvent(MotionEvent event) {
         if (mBitmapChanged) return false;
-        mScaleDetector.onTouchEvent(event);
+        mScaleDetector.onTouchEvent(this, event);
 
         if (!mScaleDetector.isInProgress()) {
             mGestureDetector.onTouchEvent(event);
@@ -1191,17 +1205,27 @@ public class ImageCropView extends ImageView {
     public class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         protected boolean mScaled = false;
+        private Vector2D mPrevSpanVector = new Vector2D();
+        private float rotate;
 
         @Override
-        public boolean onScaleBegin(ScaleGestureDetector detector) {
+        public boolean onScaleBegin(View view, ScaleGestureDetector detector) {
             isChangingScale = true;
-            return super.onScaleBegin(detector);
+            mPrevSpanVector.set(detector.getCurrentSpanVector());
+            rotate = 0;
+            return super.onScaleBegin(view, detector);
         }
 
         @Override
-        public boolean onScale(ScaleGestureDetector detector) {
+        public boolean onScale(View view, ScaleGestureDetector detector) {
             float span = detector.getCurrentSpan() - detector.getPreviousSpan();
             float targetScale = getScale() * detector.getScaleFactor();
+
+            if(mRotateEnabled) {
+                rotate = Vector2D.getAngleDegrees(mPrevSpanVector, detector.getCurrentSpanVector());
+                mPrevSpanVector.set(detector.getCurrentSpanVector());
+                postRotate(rotate, detector.getFocusX(), detector.getFocusY());
+            }
 
             if (mScaleEnabled) {
                 if (mScaled && span != 0) {
@@ -1217,13 +1241,14 @@ public class ImageCropView extends ImageView {
                 // image is scaled.
                 if (!mScaled) mScaled = true;
             }
+
             return true;
         }
 
         @Override
-        public void onScaleEnd(ScaleGestureDetector detector) {
+        public void onScaleEnd(View view, ScaleGestureDetector detector) {
             isChangingScale = false;
-            super.onScaleEnd(detector);
+            super.onScaleEnd(view, detector);
         }
     }
 
