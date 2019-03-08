@@ -136,6 +136,7 @@ public class ImageCropView extends ImageView {
     private float[] suppMatrixValues = new float[9];
 
     private boolean disabledAdjustCropAreaImage;
+    private boolean autoCentered = true;
 
     public ImageCropView(Context context) {
         this(context, null);
@@ -805,7 +806,8 @@ public class ImageCropView extends ImageView {
         float oldScale = getScale();
         float deltaScale = scale / oldScale;
         postScale(deltaScale, centerX, centerY);
-        center(true, true);
+        if(autoCentered)
+            center(true, true);
     }
 
     protected void onZoomAnimationCompleted(float scale) {
@@ -928,7 +930,8 @@ public class ImageCropView extends ImageView {
                             mHandler.post(this);
                         } else {
                             onZoomAnimationCompleted(getScale());
-                            center(true, true);
+                            if(autoCentered)
+                                center(true, true);
                         }
                     }
                 }
@@ -1052,6 +1055,10 @@ public class ImageCropView extends ImageView {
 
     public void setDisabledAdjustCropAreaImage(boolean disabledAdjustCropAreaImage) {
         this.disabledAdjustCropAreaImage = disabledAdjustCropAreaImage;
+    }
+
+    public void setAutoCentered(boolean autoCentered) {
+        this.autoCentered = autoCentered;
     }
 
     @Override
