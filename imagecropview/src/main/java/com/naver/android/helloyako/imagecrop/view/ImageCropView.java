@@ -74,6 +74,7 @@ public class ImageCropView extends ImageView {
 
     private float mMaxZoom = ZOOM_INVALID;
     private float mMinZoom = ZOOM_INVALID;
+    private float mMinScale = 1;
 
     // true when min and max zoom are explicitly defined
     private boolean mMaxZoomDefined;
@@ -183,6 +184,8 @@ public class ImageCropView extends ImageView {
 
         disabledAdjustCropAreaImage = a.getBoolean(R.styleable.ImageCropView_disabledAdjustCropAreaImage, false);
 
+        mMinScale = a.getFloat(R.styleable.ImageCropView_minScale, mMinScale);
+
         int rowLineCount = (GRID_ROW_COUNT - 1) * 4;
         int columnLineCount = (GRID_COLUMN_COUNT - 1) * 4;
         mPts = new float[rowLineCount + columnLineCount];
@@ -279,7 +282,7 @@ public class ImageCropView extends ImageView {
                 // retrieve the old values
                 float oldMatrixScale = getScale(mBaseMatrix);
                 float oldScale = getScale();
-                float oldMinScale = Math.min(1f, 1f / oldMatrixScale);
+                float oldMinScale = Math.min(mMinScale, 1f / oldMatrixScale);
 
                 getProperBaseMatrix(drawable, mBaseMatrix);
 
@@ -451,7 +454,7 @@ public class ImageCropView extends ImageView {
 
     @Override
     public void setImageBitmap(final Bitmap bitmap) {
-        float minScale = 1f;
+        float minScale = mMinScale;
         float maxScale = 8f;
         setImageBitmap(bitmap, minScale, maxScale);
     }
@@ -478,7 +481,7 @@ public class ImageCropView extends ImageView {
 
     @Override
     public void setImageDrawable(Drawable drawable) {
-        float minScale = 1f;
+        float minScale = mMinScale;
         float maxScale = 8f;
         setImageDrawable(drawable, minScale, maxScale);
     }
@@ -568,11 +571,11 @@ public class ImageCropView extends ImageView {
         final Drawable drawable = getDrawable();
 
         if (drawable == null) {
-            return 1F;
+            return mMinScale;
         }
 
         float scale = getScale(mBaseMatrix);
-        scale = Math.min(1f, 1f / scale);
+        scale = Math.min(mMinScale, 1f / scale);
 
         if (LOG_ENABLED) {
             Log.i(LOG_TAG, "computeMinZoom: " + scale);
@@ -602,6 +605,13 @@ public class ImageCropView extends ImageView {
         }
 
         return mMinZoom;
+    }
+
+    public void setMinScale(float minScale) {
+        if(minScale <= 0)
+            minScale = 1;
+
+        mMinScale = minScale;
     }
 
     public Matrix getImageViewMatrix() {
